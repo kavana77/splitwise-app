@@ -12,17 +12,17 @@ type HeroSectionProps = {
   description: string;
 };
 const HeroSection = ({ description }: HeroSectionProps) => {
-       useEffect(() => {
-      const showToast = localStorage.getItem("showLoginToast");
-      if (showToast === "true") {
-        toast.info("You can now login with the same email.", {
-          duration: 5000,
-        });
-        localStorage.removeItem("showLoginToast");
-      }
-    }, []);
-const isDark = useDarkMode();
-    
+  useEffect(() => {
+    const showToast = localStorage.getItem("showLoginToast");
+    if (showToast === "true") {
+      toast.info("You can now login with the same email.", {
+        duration: 5000,
+      });
+      localStorage.removeItem("showLoginToast");
+    }
+  }, []);
+  const isDark = useDarkMode();
+
   return (
     <section
       className="lg:h-[100vh]"

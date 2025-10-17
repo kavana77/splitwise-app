@@ -3,11 +3,12 @@ import InputBox from "../components/InputBox";
 import { Input } from "../components/ui/input";
 import Logo from "../assets/images.png";
 import Text from "../components/ui/text";
-import { createGroup, fetchUsers, type AddGroupBody } from "@/utils/http";
+import { createGroup, fetchUsers } from "@/utils/http";
+import type { AddGroupBody } from "@/types/type";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft} from "lucide-react";
-import {auth} from "../firebaseConfig"
+import { ArrowLeft } from "lucide-react";
+import { auth } from "../firebaseConfig";
 import { toast } from "sonner";
 
 const GroupPage = () => {
@@ -17,7 +18,13 @@ const GroupPage = () => {
     queryFn: fetchUsers,
   });
 
-  const { register, handleSubmit, control, setValue ,formState: {isSubmitting}} = useForm<AddGroupBody>({
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    formState: { isSubmitting },
+  } = useForm<AddGroupBody>({
     defaultValues: {
       groupMembers: [{ uid: "", name: "", email: "" }],
     },
@@ -41,16 +48,16 @@ const GroupPage = () => {
   };
   const onSubmit = async (data: AddGroupBody) => {
     try {
-      const user = auth.currentUser
-            if (!user) throw new Error("User not logged in");
+      const user = auth.currentUser;
+      if (!user) throw new Error("User not logged in");
       const groupData = {
         ...data,
         createdBy: user.uid,
-      }
+      };
       await createGroup(groupData);
       console.log("Data saved successfully", data);
       navigate("/dashboard");
-      toast.success("Group data added successfully")
+      toast.success("Group data added successfully");
     } catch (error) {
       console.error("Error submitting blog data: ", error);
       alert(error);
@@ -64,7 +71,7 @@ const GroupPage = () => {
         <ArrowLeft />
       </Link>
       <div className="hidden w-[50%] lg:w-[30%] md:flex flex-col items-center pl-10">
-        <img src={Logo} className="w-50 h-50 hidden md:flex"/>
+        <img src={Logo} className="w-50 h-50 hidden md:flex" />
       </div>
       <div className="md:w-[50%] ">
         <Text className="text-gray-400 md:text-3xl">START A NEW GROUP</Text>
@@ -140,7 +147,7 @@ const GroupPage = () => {
             disabled={isSubmitting}
             className="bg-orange-400 text-2xl text-white px-3 py-1 rounded-sm cursor-pointer mt-12"
           >
-           {isSubmitting? "Saving..." : "Save"}
+            {isSubmitting ? "Saving..." : "Save"}
           </button>
         </form>
       </div>

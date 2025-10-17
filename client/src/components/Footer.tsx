@@ -26,11 +26,10 @@ const Footer = () => {
           <li className="font-semibold text-purple-400 ">More</li>
           <li>Contact us</li>
           <li>FAQ</li>
-
         </ul>
-            <div className="flex flex-col justify-center items-center space-y-4 bg-gray-900 w-30 sm:w-50 rounded-2xl p-4">
-              <p>Follow us</p>
-              <div className=" flex gap-6">
+        <div className="flex flex-col justify-center items-center space-y-4 bg-gray-900 w-30 sm:w-50 rounded-2xl p-4">
+          <p>Follow us</p>
+          <div className=" flex gap-6">
             <a
               href="https://www.instagram.com/splitwise"
               className="hover:text-purple-400"
@@ -46,8 +45,8 @@ const Footer = () => {
             <a href="https://x.com/splitwise" className="hover:text-purple-400">
               <FaTwitter />
             </a>
-            </div>
           </div>
+        </div>
       </div>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 91">
         <path fill="#ACE4D6" d="M349 76.499L286 113V40z"></path>

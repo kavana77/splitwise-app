@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import { fetchGroupById, type GroupMember } from "@/utils/http";
+import { fetchGroupById } from "@/utils/http";
+import type { GroupMember } from "@/types/type";
 
 type GroupMembersMap = Record<
   string,

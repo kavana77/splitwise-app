@@ -21,7 +21,7 @@ const ExpenseSection = ({ groupId, groups, setUserBox }: Props) => {
   const isDark = useDarkMode();
   const queryClient = useQueryClient();
 
-  const { data: expenseData, isFetching} = useQuery({
+  const { data: expenseData, isFetching } = useQuery({
     queryKey: ["expense", groupId],
     queryFn: () => getExpenseList(groupId!),
     enabled: !!groupId,
@@ -80,31 +80,30 @@ const ExpenseSection = ({ groupId, groups, setUserBox }: Props) => {
           <Text variant="heading" className="text-gray-400 flex gap-2">
             Expense History <img src={Money} className="w-10 h-10" />
           </Text>
-        <ScrollArea className="h-120">
-          {isFetching? (
-            <Skeleton className=" h-20 rounded-xl mb-2" />
-          ) : (
-            expense.map((exp: ExpenseLists) => (
-              <ExpenseList
-                key={exp.expenseId}
-                expenseId={exp.expenseId}
-                description={exp.description}
-                amountPaid={exp.paidAmount}
-                lentAmount={exp.shouldGetBack}
-                paidUserName={exp.paidUserName}
-                onDelete={(id) =>
-                  deleteExpenseMutation.mutate({
-                    groupId: groupId!,
-                    expenseId: id,
-                  })
-                }
-              />
-            ))
-          )}
+          <ScrollArea className="h-120">
+            {isFetching ? (
+              <Skeleton className=" h-20 rounded-xl mb-2" />
+            ) : (
+              expense.map((exp: ExpenseLists) => (
+                <ExpenseList
+                  key={exp.expenseId}
+                  expenseId={exp.expenseId}
+                  description={exp.description}
+                  amountPaid={exp.paidAmount}
+                  lentAmount={exp.shouldGetBack}
+                  paidUserName={exp.paidUserName}
+                  onDelete={(id) =>
+                    deleteExpenseMutation.mutate({
+                      groupId: groupId!,
+                      expenseId: id,
+                    })
+                  }
+                />
+              ))
+            )}
           </ScrollArea>
         </div>
       )}
-      
     </div>
   );
 };

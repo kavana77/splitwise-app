@@ -1,5 +1,5 @@
 import { Card, CardContent } from "./ui/card";
-import {  motion } from "framer-motion";
+import { motion } from "framer-motion";
 import Text from "./ui/text";
 import BG from "../assets/background-noise.webp";
 import BlackBG from "../assets/black-bg-noise.png";
@@ -33,10 +33,11 @@ const Features = () => {
       className="bg-cover bg-center"
     >
       <div className="text-center space-y-4 p-14 lg:px-34 relative">
-        <motion.div initial={{y: 120,opacity:0}}
-        whileInView={{ y: 0, opacity: 1 }}
-        transition={{duration:1, ease:"easeOut"}}
-        viewport={{ once: false, amount: 0.2 }}
+        <motion.div
+          initial={{ y: 120, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          viewport={{ once: false, amount: 0.2 }}
         >
           <Text variant="heading">Features</Text>
           <Text variant="muted" className="md:text-lg">

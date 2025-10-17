@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Calendar } from "./ui/calendar";
 import { useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addSettlement} from "../utils/http";
+import { addSettlement } from "../utils/http";
 import type { AddSettlementBody } from "@/types/type";
 import { useGroupData } from "../hooks/useGroupData";
 
@@ -30,9 +30,8 @@ const AddSettlement = ({ id, onClose }: AddSettlementProps) => {
   const [paidByUserId, setPaidByUserId] = useState<string>("");
   const [paidByUserName, setPaidByUserName] = useState<string>("select payer");
   const [receivedByUserId, setReceivedByUserId] = useState<string>("");
-  const [receivedByUserName, setReceivedByUserName] = useState<string>(
-    "select receiver"
-  );
+  const [receivedByUserName, setReceivedByUserName] =
+    useState<string>("select receiver");
   const [payerDialogOpen, setPayerDialogOpen] = useState(false);
   const [receiverDialogOpen, setReceiverDialogOpen] = useState(false);
   const [currencyDialog, setCurrencyDialog] = useState(false);
@@ -70,8 +69,8 @@ const AddSettlement = ({ id, onClose }: AddSettlementProps) => {
   const onSubmit = (data: AddSettlementBody) => {
     data.paidByUserId = paidByUserId;
     data.receivedByUserId = receivedByUserId;
-    if(paidByUserId===receivedByUserId){
-      alert("Cannot settle the payment with same member")
+    if (paidByUserId === receivedByUserId) {
+      alert("Cannot settle the payment with same member");
     }
     mutation.mutate(data);
   };
@@ -143,7 +142,7 @@ const AddSettlement = ({ id, onClose }: AddSettlementProps) => {
             key={member.uid}
             type="button"
             onClick={() => {
-              console.log("member id", member.uid)
+              console.log("member id", member.uid);
               setPaidByUserId(member.uid);
               setPaidByUserName(member.name ?? "unknown");
               setPayerDialogOpen(false);

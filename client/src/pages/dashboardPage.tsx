@@ -18,7 +18,6 @@ import ExpenseSection from "@/components/expense/Expense";
 import GroupSection from "@/components/group/Group";
 import MemberSection from "@/components/group/AddMember";
 
-
 const Dashboard = () => {
   const { groupId } = useParams();
   const [userBox, setUserBox] = useState(false);
@@ -56,7 +55,7 @@ const Dashboard = () => {
       className="h-[88%] relative bg-background text-foreground min-h-screen"
     >
       <NavbarUser />
-      
+
       {groups?.length > 0 || skipped ? (
         <motion.div
           initial={{ y: -100, opacity: 0 }}
@@ -107,13 +106,13 @@ const Dashboard = () => {
             </div>
           </div>
           {/* Add Expense Dialog */}
-           <SelectDialog
+          <SelectDialog
             isOpen={addExpenseOpen}
             onOpenChange={setAddExpenseOpen}
             title="Add an expense"
           >
-            <AddExpenseForm onClose={() => setAddExpenseOpen(false)} /> 
-           </SelectDialog> 
+            <AddExpenseForm onClose={() => setAddExpenseOpen(false)} />
+          </SelectDialog>
 
           {/* Settle Up Dialog */}
           <SelectDialog
