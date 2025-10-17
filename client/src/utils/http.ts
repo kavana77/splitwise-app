@@ -1,37 +1,8 @@
+import { auth } from "@/firebaseConfig";
 import { getDatabase, ref, get, child } from "firebase/database";
 const url = "http://localhost:4000/api"
-
-export interface GroupMember {
-  uid: string;
-  name: string | null;
-  email?: string | null;
-}
-
-export interface AddGroupBody {
-  groupName: string;
-  groupMembers: GroupMember[];
-  groupType: string;
-}
-export interface Group {
-    groupId: string
-    groupName: string;
-  groupMembers?: Record<string, { name: string; email?: string }>;
-  groupType?: string;
-}
-export interface SplitInput {
-  [uid: string]: number;
-}
-
-
-export interface AddExpenseBody {
-  description: string;
-  amount: number;
-  paidUserId: string;
-  splitType: "equally" | "exact" | "adjustment" | "shares" | "reimbursement" | "percentage";
-  date: string;
-  groupId: string;
-  splitDetails?: SplitInput;
-}
+import type {GroupMember, AddGroupBody, Group, AddSettlementBody, GroupBalanceResponse } from "@/types/type";
+import type { AddExpenseBody } from "@/lib/zodSchema";
 
 export const createGroup = async(groupData: AddGroupBody)=>{
     const response = await fetch(`${url}/add/newGroup`,{
@@ -81,7 +52,7 @@ export const addExpenses = async (expenseData: AddExpenseBody)=>{
 }
 
 export const fetchGroupById = async(groupId: string)=>{
-    const response = await fetch(`${url}/add/groups/${groupId}`,{
+    const response = await fetch(`${url}/add/group/${groupId}`,{
         method: "GET",
         headers:{
             "Content-Type": "application/json"
@@ -94,8 +65,77 @@ export const fetchGroupById = async(groupId: string)=>{
     return response.json()
 }
 export const fetchGroups = async (): Promise<Group[]> => {
-  const res = await fetch(`${url}/add/groups`, { method: "GET", headers: { "Content-Type": "application/json" } });
+    const user = auth.currentUser
+  if (!user) throw new Error("Not logged in");
+  const res = await fetch(`${url}/add/groups?uid=${user.uid}`, { method: "GET", headers: { "Content-Type": "application/json" } });
   if (!res.ok) throw new Error("Failed to fetch groups");
   const data = await res.json();
   return data.groups ;
 };
+export const addSettlement = async(settlementData: AddSettlementBody)=>{
+  const response = await fetch(`${url}/add/settlement`,{
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(settlementData)
+  })
+  if(!response.ok){
+    throw new Error("Failed to add the settlement")
+  }
+  return response.json()
+}
+
+export const getGroupBalance = async(groupId: string): Promise<GroupBalanceResponse>=>{
+  const response = await fetch(`${url}/check/group/balance/${groupId}`,{
+    method: "GET",
+     headers:{
+            "Content-Type": "application/json"
+        }
+  })
+  if(!response.ok){
+    throw new Error("Failed to get the Group Balance")
+  }
+  return response.json() as Promise<GroupBalanceResponse>
+}
+
+export const addGroupMember = async(groupId:string, groupMembers: GroupMember[])=>{
+  const response = await fetch(`${url}/add/groups/${groupId}/members`,{
+    method:"POST",
+    headers:{
+        "Content-Type": "application/json"
+    },
+        body: JSON.stringify({ groupMembers: groupMembers }),
+
+  })
+    if(!response.ok){
+    throw new Error("Failed to get the Group Balance")
+  }
+  return response.json()
+}
+
+export const getExpenseList = async(groupId: string)=>{
+  const response = await fetch(`${url}/add/getExpense/${groupId}`,{
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+    if(!response.ok){
+    throw new Error("Failed to get the Group Balance")
+  }
+  return response.json()
+}
+
+export const deleteExpense = async(groupId: string, expenseId: string)=>{
+  const response = await fetch(`${url}/add/expense/${groupId}/${expenseId}`,{
+    method: 'DELETE',
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+      if(!response.ok){
+    throw new Error("Failed to get the Group Balance")
+  }
+  return response.json()
+}

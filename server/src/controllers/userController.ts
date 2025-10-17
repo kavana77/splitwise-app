@@ -1,14 +1,31 @@
 import { RequestHandler } from "express";
 import db from "../config/firebaseConfig";
 
-export const creatUser:RequestHandler = async (req , res)=>{
-    const {name, email} = req.body
-    try {
-        const usersRef = db.ref("users").push()
-        const userData = {name,email}
-        await usersRef.set(userData)
-        res.status(201).json({message: "User created successfully",userID:usersRef.key,users:userData })
-    } catch (error) {
-        res.status(500).json({message: "Internal server error", error})
-    }
+interface GroupMember {
+  uid: string;
+  name: string;
+  email: string;
 }
+
+export const addUser: RequestHandler = async (req, res) => {
+  const { groupId } = req.params;
+  const { groupMembers } = req.body;
+  try {
+    if (groupMembers.length === 0) {
+      return res.status(400).json({ message: "Invalid groupMembers" });
+    }
+    const groupMembersRef = db.ref(`group/${groupId}/groupMembers`);
+
+    const membersObj: Record<string, GroupMember> = {};
+    (groupMembers as GroupMember[]).forEach((member: GroupMember) => {
+      if (member.uid && member.name && member.email) {
+        membersObj[member.uid] = member;
+      }
+    });
+
+    await groupMembersRef.update(membersObj);
+    res.status(201).json({ message: "group members updated successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};

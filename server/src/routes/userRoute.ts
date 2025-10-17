@@ -1,7 +1,7 @@
 import express from 'express'
-import { creatUser } from '../controllers/userController'
+import { addUser } from '../controllers/userController'
 
 const router = express.Router()
-router.post('/users', creatUser)
+router.post('/groups/:groupId/members', addUser)
 
 export default router

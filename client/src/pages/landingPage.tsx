@@ -1,16 +1,14 @@
-import Features from "../component/Features";
-import Footer from "../component/Footer";
-import HeroSection from "../component/HeroSection";
-import HowItWorks from "../component/HowItWorks";
-import NavbarGuest from "../component/navbar/NavbarGuest";
+import Features from "../components/Features";
+import Footer from "../components/Footer";
+import HeroSection from "../components/HeroSection";
+import HowItWorks from "../components/HowItWorks";
 
 const LandingPage = () => {
     return ( 
         <>
-        <NavbarGuest/>
         <HeroSection
         description="Simplify group expenses effortlessly. Our user-friendly app makes bill splitting, expenses tracking, and payment coordination seamless. Gain financial clarity and peace of mind with Splitwise"
-        buttonTitle="Open a Splitwise Account"/>
+        />
         <HowItWorks/>
         <Features/>
         <Footer/>

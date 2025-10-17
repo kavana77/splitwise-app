@@ -3,20 +3,37 @@ import db from "../config/firebaseConfig";
 interface SplitInput {
   [uid: string]: number;
 }
+interface PaidInput {
+  [uid: string]: number;
+}
+interface Items {
+  description: string;
+  amount: number;
+}
 interface AddExpenseBody {
   description: string;
   amount: number;
-  paidUserId: string;
-  splitType: "equally" | "exact" | "adjustment" | "shares" | "reimbursement" | 'percentage';
+  paidUsersId: PaidInput;
+  splitType:
+    | "equally"
+    | "exact"
+    | "adjustment"
+    | "shares"
+    | "reimbursement"
+    | "percentage"
+    | "itemized";
   date: string;
   groupId: string;
+  items?: Items[];
+  gst?: number;
+  tip?: number;
   splitDetails?: SplitInput;
 }
 export const addExpenses: RequestHandler<AddExpenseBody> = async (req, res) => {
   const {
     description,
     amount,
-    paidUserId,
+    paidUsersId,
     splitType,
     date,
     groupId,
@@ -26,15 +43,17 @@ export const addExpenses: RequestHandler<AddExpenseBody> = async (req, res) => {
     if (
       !description ||
       !amount ||
-      !paidUserId ||
+      !paidUsersId ||
       !splitType ||
       !date ||
       !groupId
     ) {
-      return res.status(400).json({ message: "Invalid Inputs" });
+      return res.status(400).json({ message: "Invalid expense Inputs" });
     }
-    if(amount <=0){
-        return res.status(400).json({message:"Amount must be positive number"})
+    if (amount <= 0) {
+      return res
+        .status(400)
+        .json({ message: "Amount must be positive number" });
     }
     const groupSnap = await db
       .ref(`group/${groupId}/groupMembers`)
@@ -42,19 +61,49 @@ export const addExpenses: RequestHandler<AddExpenseBody> = async (req, res) => {
     if (!groupSnap.exists()) {
       return res.status(404).json({ message: "Group not found" });
     }
-    const members: Record<string, any> = groupSnap.val();
+    const members = groupSnap.val() as Record<string, any>;
     const memberIds = Object.keys(members);
-    if(!memberIds.includes(paidUserId)){
-        return res.status(400).json({message:"Paid user is not a member of this group"})
+    const paidUsers =
+      typeof paidUsersId === "string"
+        ? [paidUsersId]
+        : Object.keys(paidUsersId || {});
+    for (const userId of paidUsers) {
+      if (!memberIds.includes(userId)) {
+        return res
+          .status(400)
+          .json({
+            message: `Paid user ${userId} is not a member of this group`,
+          });
+      }
     }
-    if(splitDetails){
-        const invalidSplitUsers = Object.keys(splitDetails).filter(uid =>!memberIds.includes(uid))
-        if (invalidSplitUsers.length > 0) {
-            return res.status(400).json({ message: `Split details contain users not in the group: ${invalidSplitUsers.join(', ')}` });
-        }
+    const totalPaid = Object.values(paidUsersId).reduce(
+      (sum: number, amnt: any) => sum + amnt,
+      0
+    );
+    if (totalPaid !== amount) {
+      return res
+        .status(401)
+        .json({
+          message: `The total of everyone's paid shares (${totalPaid}) is different than the total cost (${amount})`,
+        });
+    }
+    console.log(totalPaid);
+    if (splitDetails) {
+      const invalidSplitUsers = Object.keys(splitDetails).filter(
+        (uid) => !memberIds.includes(uid)
+      );
+      if (invalidSplitUsers.length > 0) {
+        return res
+          .status(400)
+          .json({
+            message: `Split details contain users not in the group: ${invalidSplitUsers.join(
+              ", "
+            )}`,
+          });
+      }
     }
     let splits: Record<string, number> = {};
-
+    let grandTotal = 0;
     if (splitType === "equally") {
       const perHead = amount / memberIds.length;
       memberIds.forEach((uid) => {
@@ -66,27 +115,35 @@ export const addExpenses: RequestHandler<AddExpenseBody> = async (req, res) => {
           .status(400)
           .json({ message: "Exact split requires splitDetails" });
       }
-      const total = (Object.values(splitDetails) as number[]).reduce((a, b) => a + b, 0);
+      const total = (Object.values(splitDetails) as number[]).reduce(
+        (a, b) => a + b,
+        0
+      );
       if (Math.abs(total - amount) > 0.01) {
         return res
           .status(400)
           .json({ message: "Exact split must add up to total amount" });
       }
       splits = splitDetails;
-    }else if(splitType === 'percentage'){
-        if (!splitDetails) {
+    } else if (splitType === "percentage") {
+      if (!splitDetails) {
         return res
           .status(400)
           .json({ message: "Percentage split requires splitDetails" });
-      } 
-      const totalPercentage =(Object.values(splitDetails) as number[]).reduce((a,b)=> a + b ,0)
-      if(Math.abs(totalPercentage - 100) > 0.001){
-        return res.status(400).json({message:"Percentage must add up to 100"})
       }
-      memberIds.forEach((uid)=>{
-        const userPercentage = splitDetails[uid] 
-        splits[uid] = Number(((amount* userPercentage)/100).toFixed(2))
-      })
+      const totalPercentage = (Object.values(splitDetails) as number[]).reduce(
+        (a, b) => a + b,
+        0
+      );
+      if (Math.abs(totalPercentage - 100) > 0.001) {
+        return res
+          .status(400)
+          .json({ message: "Percentage must add up to 100" });
+      }
+      memberIds.forEach((uid) => {
+        const userPercentage = splitDetails[uid];
+        splits[uid] = Number(((amount * userPercentage) / 100).toFixed(2));
+      });
     } else if (splitType === "shares") {
       if (!splitDetails) {
         return res
@@ -107,7 +164,10 @@ export const addExpenses: RequestHandler<AddExpenseBody> = async (req, res) => {
           .status(400)
           .json({ message: "Adjustment split requires splitDetails" });
       }
-      const total = (Object.values(splitDetails) as number[]).reduce((a:number, b:number) => a + b, 0);
+      const total = (Object.values(splitDetails) as number[]).reduce(
+        (a: number, b: number) => a + b,
+        0
+      );
       if (Math.abs(total - amount) > 0.01) {
         return res
           .status(400)
@@ -120,15 +180,53 @@ export const addExpenses: RequestHandler<AddExpenseBody> = async (req, res) => {
           .status(400)
           .json({ message: "Reimbursement requires splitDetails" });
       }
-      const total = (Object.values(splitDetails) as number[]).reduce((a, b) => a + b, 0);
+      const total = (Object.values(splitDetails) as number[]).reduce(
+        (a, b) => a + b,
+        0
+      );
       if (Math.abs(total - amount) > 0.01) {
         return res
           .status(400)
           .json({ message: "Reimbursement must balance out to 0" });
       }
       splits = splitDetails;
-    }else {
-        return res.status(400).json({message: "Invalid split type"})
+    } else if (splitType === "itemized") {
+      const { items = [], gst = 0, tip = 0 } = req.body;
+
+      const splitDetails: Record<string, number> = {};
+
+      //  Base itemized amount (divide each item equally)
+      items.forEach((item: any) => {
+        const includedUsers = item.users || memberIds;
+        const perUser = item.amount / includedUsers.length;
+        includedUsers.forEach((uid: string) => {
+          const current = splitDetails[uid] || 0;
+          splitDetails[uid] = Number((current + perUser).toFixed(2));
+        });
+      });
+
+      // Subtotal 
+      const subtotal = Object.values(splitDetails).reduce((a, b) => a + b, 0);
+
+      //  Calculate GST & Tip
+      const gstAmount = (subtotal * gst) / 100;
+      const tipAmount = (subtotal * tip) / 100;
+
+      //  Add equal share of GST & Tip to each user
+      const gstShare = gstAmount / memberIds.length;
+      const tipShare = tipAmount / memberIds.length;
+
+      memberIds.forEach((uid) => {
+        const current = splitDetails[uid] || 0;
+        splitDetails[uid] = Number((current + gstShare + tipShare).toFixed(2));
+      });
+
+      //  Grand total (Subtotal + GST + Tip)
+      grandTotal = subtotal + gstAmount + tipAmount;
+
+      splits = splitDetails;
+    } else {
+      return res.status(400).json({ message: "Invalid split type" });
     }
     const newExpenseRef = await db.ref("expense").push();
     const expenseId = newExpenseRef.key;
@@ -136,8 +234,8 @@ export const addExpenses: RequestHandler<AddExpenseBody> = async (req, res) => {
     const expenseData = {
       expenseId,
       description,
-      amount,
-      paidUserId,
+      amount: grandTotal || amount,
+      paidUsersId,
       splitType,
       date,
       groupId,
@@ -146,15 +244,105 @@ export const addExpenses: RequestHandler<AddExpenseBody> = async (req, res) => {
     };
     await newExpenseRef.set(expenseData);
     await db.ref(`group/${groupId}/expense/${expenseId}`).set(true);
-
-    res
-      .status(201)
-      .json({
-        message: "Expense created successfully",
-        expense: expenseData,
-
-      });
+    res.status(201).json({
+      message: "Expense created successfully",
+      expense: expenseData,
+    });
   } catch (error) {
     res.status(500).json({ message: "Internal Server error", error });
+  }
+};
+
+export const getExpenseByGroupId: RequestHandler = async (req, res) => {
+  const { groupId } = req.params;
+
+  try {
+    const expenseSnap = await db
+      .ref("expense")
+      .orderByChild("groupId")
+      .equalTo(groupId)
+      .once("value");
+
+    if (!expenseSnap.exists()) {
+      return res
+        .status(404)
+        .json({ message: "No expenses found for this group" });
+    }
+
+    const groupSnap = await db
+      .ref(`group/${groupId}/groupMembers`)
+      .once("value");
+    if (!groupSnap.exists()) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    const members = groupSnap.val();
+    const expenses = expenseSnap.val();
+
+    const expenseList = Object.values(expenses).map((exp: any) => {
+      const {
+        expenseId,
+        description,
+        amount,
+        splits,
+        paidUserId,
+        paidUsersId,
+      } = exp;
+
+      let paidUserName = "";
+      let totalPaid = 0;
+
+      if (paidUsersId && typeof paidUsersId === "object") {
+        const payerInfo = Object.entries(paidUsersId).map(([uid, paidAmt]) => {
+          const member = members[uid];
+          const payerName = member ? member.name : "Unknown";
+          totalPaid += paidAmt as number;
+          return `${payerName} (${paidAmt})`;
+        });
+
+        paidUserName = payerInfo.join(", ");
+      } else if (paidUserId && members[paidUserId]) {
+        paidUserName = members[paidUserId].name;
+        totalPaid = amount;
+      } else {
+        paidUserName = "Unknown payer";
+        totalPaid = amount || 0;
+      }
+
+      let totalOwedByOthers = 0;
+      if (splits && typeof splits === "object") {
+        for (const [uid, owedAmount] of Object.entries(splits)) {
+          if (uid !== paidUserId) totalOwedByOthers += owedAmount as number;
+        }
+      }
+
+      return {
+        expenseId,
+        description,
+        paidUserName,
+        paidAmount: totalPaid,
+        shouldGetBack: totalOwedByOthers,
+      };
+    });
+
+    return res.status(200).json({ message: "Expense Data", expenseList });
+  } catch (error) {
+    console.error("getExpenseByGroupId Error:", error);
+    res.status(500).json({ message: "Internal server error", error });
+  }
+};
+
+export const deleteExpense: RequestHandler = async (req, res) => {
+  const { groupId, expenseId } = req.params;
+  if (!groupId || !expenseId) {
+    return res.status(400).json({ message: "No group or expense found" });
+  }
+  try {
+    await db.ref(`expense/${expenseId}`).remove();
+    await db.ref(`group/${groupId}/expense/${expenseId}`).remove();
+    res.status(200).json({ message: "Expense deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

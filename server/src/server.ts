@@ -11,9 +11,12 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 const PORT = env.PORT
+app.get("/", (req, res) => {
+  console.log(" Root route hit");
+  res.send("API is running!");
+});
 app.use('/api/check',groupBalanceRoute)
-app.use('/api/add', groupRouter, expenseRouter,settlementRoute)
-app.use('/api/create', userRouter)
+app.use('/api/add', groupRouter, expenseRouter,settlementRoute, userRouter)
 
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`)

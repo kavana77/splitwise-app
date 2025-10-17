@@ -5,22 +5,22 @@ interface SettlePaymentBody{
     groupId: string
     amount: number
     date: string
-    paidByUser: string
-    receivedByUser: string
+    paidByUserId: string
+    receivedByUserId: string
 }
 export const settlePayment: RequestHandler <SettlePaymentBody>= async (req, res) => {
-  const {groupId,amount, date, paidByUser, receivedByUser } =
+  const {groupId,amount, date, paidByUserId, receivedByUserId } =
     req.body;
   try {
-    if (!amount || !date || !paidByUser || !receivedByUser) {
-      return res.status(400).json({ message: "Invalid Inputs" });
+    if (!amount || !date || !paidByUserId || !receivedByUserId) {
+      return res.status(400).json({ message: "Invalid settlement Inputs" });
     }
     const groupSnap = await db.ref(`group/${groupId}/groupMembers`).once("value");
     if (!groupSnap.exists()) {
       return res.status(404).json({ message: "Group not found" });
     }
-    if(paidByUser === receivedByUser){
-        return res.status(400).json({message:"Cannot settle a payment with yourself"})
+    if(paidByUserId === receivedByUserId){
+        return res.status(400).json({message:"Cannot settle a payment with same member"})
     }
 
     const newSettleRef = await db.ref("settlements").push();
@@ -31,8 +31,8 @@ export const settlePayment: RequestHandler <SettlePaymentBody>= async (req, res)
       groupId,
       amount,
       date,
-      paidByUser,
-      receivedByUser,
+      paidByUserId,
+      receivedByUserId,
       createdAt: Date.now(),
     };
     await newSettleRef.set(settlePaymentData);

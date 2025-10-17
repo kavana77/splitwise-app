@@ -9,13 +9,13 @@ interface GroupMember {
 
 interface AddGroupBody {
   groupName: string;
-//   createdBy: string;
   groupMembers: GroupMember[];
   groupType: string;
+  createdBy: string
 }
 
 export const addGroup: RequestHandler<AddGroupBody> = async (req, res) => {
-  const { groupName, groupMembers, groupType } = req.body;
+  const { groupName, groupMembers, groupType,createdBy } = req.body;
   
   try {
     if (!groupName || !Array.isArray(groupMembers) || groupMembers.length === 0) {
@@ -26,24 +26,22 @@ export const addGroup: RequestHandler<AddGroupBody> = async (req, res) => {
     const groupId = newGroupRef.key;
     const createdAt = Date.now();
     
-    // Transform array to object for efficient Firebase access
     const memberObj: Record<string, any> = {};
     groupMembers.forEach((member) => {
       memberObj[member.uid] = {
         name: member.name,
         email: member.email,
-        // role: member.uid === createdBy ? "admin" : "member",
         joinedAt: createdAt
       };
     });
 
     const groupData = {
-        groupId,
+      groupId,
       groupName,
-    //   createdBy,
       groupMembers: memberObj,
       groupType: groupType || "others",
-      createdAt
+      createdAt,
+      createdBy
     };
     
     await newGroupRef.set(groupData);
@@ -55,11 +53,14 @@ export const addGroup: RequestHandler<AddGroupBody> = async (req, res) => {
 };
 
 export const getAllGroups: RequestHandler = async (req, res) => {
-  try {
-    const snap = await db.ref("group").once("value");
-    if (!snap.exists()) return res.status(200).json({ groups: [] });
+  const {uid} = req.query
+      if (!uid) return res.status(400).json({ message: "User ID required" });
 
-    const val = snap.val() as Record<string, any>;
+  try {
+    const snap = await db.ref("group").orderByChild("createdBy").equalTo(uid as string).once("value");
+    if (!snap.exists()) return res.status(200).json({message:"Group not exists" });
+
+    const val = snap.val() as Record<string, AddGroupBody>;
     const groups = Object.entries(val).map(([key, g]) => ({
       id: key,
       ...g,
@@ -84,11 +85,14 @@ export const getGroupById: RequestHandler = async (req, res) => {
       return res.status(404).json({ message: "Group not found" });
     }
 
-    const data = groupSnap.val();
-    const groups = Object.entries(data).map(([id, group]) => ({
-      id,
-      ...(group as Record<string, unknown>)
+    const data = groupSnap.val() as Record<string, any>
+    const groups = Object.entries(data).map(([key, group]) => ({
+      id:key,
+      ...group ,
+        groupMembers: group.groupMembers
     }));
+    
+   
 
     res.status(200).json({ message: "Group fetched successfully", groups });
   } catch (error) {

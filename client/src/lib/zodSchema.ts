@@ -14,7 +14,7 @@ export const loginSchema = z.object({
 export const addExpenseSchema = z.object({
     description: z.string().min(1, "Description is required"),
     amount: z.number().positive("Amount must be positive"),
-    paidUserId: z.string(),
+    paidUsersId: z.record(z.string(), z.number()),
     groupId: z.string(),
     splitType: z.enum([
         "equally",
@@ -22,7 +22,8 @@ export const addExpenseSchema = z.object({
         "percentage",
         "shares",
         "adjustment",
-        "reimbursement"
+        "reimbursement",
+        "itemized"
     ]),
     splitDetails: z.record(z.string(),z.number()).optional(),
         date: z.string()

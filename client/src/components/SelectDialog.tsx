@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
 interface SelectDialogProps {
   isOpen: boolean;
@@ -6,18 +6,15 @@ interface SelectDialogProps {
   title: string;
   onSave?: () => void;
   children: React.ReactNode;
-  saveLabel?: string; 
-  showFooter?: boolean; // Optionally hide footer
+  saveLabel?: string;
+  showFooter?: boolean;
 }
 
 const SelectDialog = ({
   isOpen,
   onOpenChange,
   title,
-  onSave,
   children,
-  saveLabel ,
-  showFooter,
 }: SelectDialogProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -27,19 +24,7 @@ const SelectDialog = ({
             {title}
           </DialogTitle>
         </DialogHeader>
-
         {children}
-
-        {showFooter && (
-          <DialogFooter>
-            <button
-              className="bg-emerald-500 text-white py-2 px-3 rounded-sm"
-              onClick={onSave}
-            >
-              {saveLabel}
-            </button>
-          </DialogFooter>
-        )}
       </DialogContent>
     </Dialog>
   );

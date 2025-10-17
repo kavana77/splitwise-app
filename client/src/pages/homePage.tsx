@@ -1,5 +1,5 @@
-import NavbarUser from "../component/navbar/NavbarUser";
-import Dashboard from "../component/Dashboard";
+import NavbarUser from "../components/navbar/NavbarUser";
+import Dashboard from "./dashboardPage";
 const Home = () => {
   return <>
   <NavbarUser/>
