@@ -10,7 +10,10 @@ export function useDarkMode() {
       setIsDark(document.documentElement.classList.contains("dark"));
     });
 
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
 
     return () => observer.disconnect();
   }, []);

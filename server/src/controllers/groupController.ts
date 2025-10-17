@@ -11,27 +11,36 @@ interface AddGroupBody {
   groupName: string;
   groupMembers: GroupMember[];
   groupType: string;
-  createdBy: string
+  createdBy: string;
 }
 
 export const addGroup: RequestHandler<AddGroupBody> = async (req, res) => {
-  const { groupName, groupMembers, groupType,createdBy } = req.body;
-  
+  const { groupName, groupMembers, groupType, createdBy } = req.body;
+
   try {
-    if (!groupName || !Array.isArray(groupMembers) || groupMembers.length === 0) {
-      return res.status(400).json({ message: "Invalid group data. Group name, creator, and at least one member are required." });
+    if (
+      !groupName ||
+      !Array.isArray(groupMembers) ||
+      groupMembers.length === 0
+    ) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "Invalid group data. Group name, creator, and at least one member are required.",
+        });
     }
 
     const newGroupRef = db.ref("group").push();
     const groupId = newGroupRef.key;
     const createdAt = Date.now();
-    
+
     const memberObj: Record<string, any> = {};
     groupMembers.forEach((member) => {
       memberObj[member.uid] = {
         name: member.name,
         email: member.email,
-        joinedAt: createdAt
+        joinedAt: createdAt,
       };
     });
 
@@ -41,24 +50,30 @@ export const addGroup: RequestHandler<AddGroupBody> = async (req, res) => {
       groupMembers: memberObj,
       groupType: groupType || "others",
       createdAt,
-      createdBy
+      createdBy,
     };
-    
-    await newGroupRef.set(groupData);
-    res.status(200).json({message:"Group created successfully", group:groupData})
 
+    await newGroupRef.set(groupData);
+    res
+      .status(200)
+      .json({ message: "Group created successfully", group: groupData });
   } catch (error) {
     res.status(500).json({ message: "Internal server error", error });
   }
 };
 
 export const getAllGroups: RequestHandler = async (req, res) => {
-  const {uid} = req.query
-      if (!uid) return res.status(400).json({ message: "User ID required" });
+  const { uid } = req.query;
+  if (!uid) return res.status(400).json({ message: "User ID required" });
 
   try {
-    const snap = await db.ref("group").orderByChild("createdBy").equalTo(uid as string).once("value");
-    if (!snap.exists()) return res.status(200).json({message:"Group not exists" });
+    const snap = await db
+      .ref("group")
+      .orderByChild("createdBy")
+      .equalTo(uid as string)
+      .once("value");
+    if (!snap.exists())
+      return res.status(200).json({ message: "Group not exists" });
 
     const val = snap.val() as Record<string, AddGroupBody>;
     const groups = Object.entries(val).map(([key, g]) => ({
@@ -85,14 +100,12 @@ export const getGroupById: RequestHandler = async (req, res) => {
       return res.status(404).json({ message: "Group not found" });
     }
 
-    const data = groupSnap.val() as Record<string, any>
+    const data = groupSnap.val() as Record<string, any>;
     const groups = Object.entries(data).map(([key, group]) => ({
-      id:key,
-      ...group ,
-        groupMembers: group.groupMembers
+      id: key,
+      ...group,
+      groupMembers: group.groupMembers,
     }));
-    
-   
 
     res.status(200).json({ message: "Group fetched successfully", groups });
   } catch (error) {

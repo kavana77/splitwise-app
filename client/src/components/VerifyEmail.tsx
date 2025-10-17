@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { useCountDown } from "@/hooks/useCountDown";
 
 const VerifyEmail = () => {
-    const {count,setCount, formatTime} = useCountDown()
+  const { count, setCount, formatTime } = useCountDown();
   const [user, setUser] = useState<User | null>(auth.currentUser);
   const [verified, setVerified] = useState(user?.emailVerified ?? false);
   useEffect(() => {
@@ -45,7 +45,7 @@ const VerifyEmail = () => {
       }, 3000);
       return () => clearTimeout(timeout);
     }
-  },[verified]);
+  }, [verified]);
   const handleResend = async () => {
     if (user) {
       await sendEmailVerification(user);
@@ -77,9 +77,14 @@ const VerifyEmail = () => {
               </h3>
               <p>{formatTime()}</p>
               <button
-                className={`bg-black/60 text-white/80 py-2 px-4 hover:underline rounded-md  ${count > 0 ? "opacity-20 cursor-not-allowed": "opacity-100 cursor-pointer"}`}
-                onClick={() =>{ handleResend()
-                    setCount(60)
+                className={`bg-black/60 text-white/80 py-2 px-4 hover:underline rounded-md  ${
+                  count > 0
+                    ? "opacity-20 cursor-not-allowed"
+                    : "opacity-100 cursor-pointer"
+                }`}
+                onClick={() => {
+                  handleResend();
+                  setCount(60);
                 }}
               >
                 Resend email

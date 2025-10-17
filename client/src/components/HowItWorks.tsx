@@ -4,7 +4,7 @@ import OrganizeExpenses from "../assets/oraganize-expenses.png";
 import SettleUp from "../assets/pay-friends-back.png";
 import TrackBalance from "../assets/track-balance.png";
 import BlackBg from "../assets/black-bg.png";
-import {motion} from "framer-motion"
+import { motion } from "framer-motion";
 import TealBg from "../assets/teal-bg.png";
 import Orange from "../assets/orange-bg.png";
 import PurpleBg from "../assets/purple-bg.png";
@@ -67,12 +67,13 @@ const HowItWorks = () => {
               backgroundPosition: "center",
             }}
           >
-            <motion.div 
-            initial={{x:120,opacity:0}}
-            whileInView={{ x:0,opacity:1}}
-            transition={{duration:0.8, ease: "easeOut"}}
-            viewport={{once: false, amount:0.4}}
-            className="relative w-[240px] md:w-[320px]">
+            <motion.div
+              initial={{ x: 120, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              viewport={{ once: false, amount: 0.4 }}
+              className="relative w-[240px] md:w-[320px]"
+            >
               <img
                 src={item.image}
                 alt={item.title}
@@ -84,12 +85,13 @@ const HowItWorks = () => {
                   backdrop-blur-xs rounded-b-[2rem]"
               />
             </motion.div>
-            <motion.div 
-            initial={{x:120,opacity:0}}
-            whileInView={{ x:0,opacity:1}}
-            transition={{duration:0.8, ease: "easeOut"}}
-            viewport={{once: false, amount:0.4}}
-            className="flex flex-col items-center md:items-start text-center md:text-left max-w-md">
+            <motion.div
+              initial={{ x: 120, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              viewport={{ once: false, amount: 0.4 }}
+              className="flex flex-col items-center md:items-start text-center md:text-left max-w-md"
+            >
               <Text className="text-2xl font-semibold mt-6 md:mt-0">
                 {item.title}
               </Text>

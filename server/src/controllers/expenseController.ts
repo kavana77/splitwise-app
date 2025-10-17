@@ -194,8 +194,6 @@ export const addExpenses: RequestHandler<AddExpenseBody> = async (req, res) => {
       const { items = [], gst = 0, tip = 0 } = req.body;
 
       const splitDetails: Record<string, number> = {};
-
-      //  Base itemized amount (divide each item equally)
       items.forEach((item: any) => {
         const includedUsers = item.users || memberIds;
         const perUser = item.amount / includedUsers.length;

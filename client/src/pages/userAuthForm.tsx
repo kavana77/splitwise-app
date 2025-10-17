@@ -33,8 +33,8 @@ import Text from "@/components/ui/text";
 const UserAuthForm = () => {
   const navigate = useNavigate();
   const { setCount } = useCountDown();
-const loginForm = useForm()
-const signupForm = useForm()
+  const loginForm = useForm();
+  const signupForm = useForm();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
@@ -60,7 +60,6 @@ const signupForm = useForm()
     }
   };
 
-
   const handleSignup = async (data: FieldValues) => {
     try {
       const result = await createUserWithEmailAndPassword(
@@ -82,7 +81,7 @@ const signupForm = useForm()
         navigate("/dashboard");
       }
       setCount(60);
-      signupForm.reset()
+      signupForm.reset();
     } catch (error: unknown) {
       console.error(error);
       if (typeof error === "object" && error !== null && "code" in error) {
@@ -100,8 +99,8 @@ const signupForm = useForm()
       }
     }
   };
-    const handleLogin = async (data: FieldValues) => {
-      console.log("Login form submitted", data);
+  const handleLogin = async (data: FieldValues) => {
+    console.log("Login form submitted", data);
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -109,11 +108,11 @@ const signupForm = useForm()
         data.password
       );
       const user = userCredential.user;
-      console.log("Logged in user:", user)
+      console.log("Logged in user:", user);
       await saveUserToDB(user);
       localStorage.setItem("user", user.displayName || "");
       localStorage.setItem("userEmail", user.email || "");
-      
+
       toast.success("Login successfully");
       navigate("/dashboard");
       loginForm.reset();
@@ -154,18 +153,16 @@ const signupForm = useForm()
           <TabsTrigger value="login">Login</TabsTrigger>
           <TabsTrigger value="signup">Sign Up</TabsTrigger>
         </TabsList>
-        <TabsContent value="login" >
-          <form 
-          onSubmit={loginForm.handleSubmit(handleLogin)}
-          >
+        <TabsContent value="login">
+          <form onSubmit={loginForm.handleSubmit(handleLogin)}>
             <InputBox
-              {...loginForm.register("email",{required: true})}
+              {...loginForm.register("email", { required: true })}
               label="Email address"
               type="email"
               placeholder="Enter your email address"
             />
             <InputBox
-              {...loginForm.register("password",{required: true})}
+              {...loginForm.register("password", { required: true })}
               label="Password"
               type="password"
               placeholder="Enter the password"
@@ -188,7 +185,7 @@ const signupForm = useForm()
               <img src={GoogleIcon} className="w-8 h-8" />
               continue with google
             </button>
- {/* PASSWORD RESET */}
+            {/* PASSWORD RESET */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <p className="underline text-center cursor-pointer mt-4">
@@ -198,7 +195,10 @@ const signupForm = useForm()
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Forgot your password?</DialogTitle>
-                  <Text variant="muted">Enter your registered email so that we can send you password reset link</Text>
+                  <Text variant="muted">
+                    Enter your registered email so that we can send you password
+                    reset link
+                  </Text>
                 </DialogHeader>
                 <Input
                   type="email"
@@ -207,7 +207,10 @@ const signupForm = useForm()
                   onChange={(e) => setResetEmail(e.target.value)}
                 />
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsDialogOpen(false)}
+                  >
                     Cancel
                   </Button>
                   <Button onClick={handlePasswordReset}>Send Reset Link</Button>
@@ -215,12 +218,16 @@ const signupForm = useForm()
               </DialogContent>
             </Dialog>
           </form>
-        
         </TabsContent>
-        <TabsContent value="signup" >
-          <form onSubmit={signupForm.handleSubmit(handleSignup)} className="mb-[-28px]">
+        <TabsContent value="signup">
+          <form
+            onSubmit={signupForm.handleSubmit(handleSignup)}
+            className="mb-[-28px]"
+          >
             <InputBox
-              {...signupForm.register("name", { required: "Please enter your name" })}
+              {...signupForm.register("name", {
+                required: "Please enter your name",
+              })}
               label="My name is"
               type="text"
               placeholder="Enter your name"

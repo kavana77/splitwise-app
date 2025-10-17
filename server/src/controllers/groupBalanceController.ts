@@ -3,7 +3,6 @@ import db from "../config/firebaseConfig";
 
 export const getGroupBalance: RequestHandler = async (req, res) => {
   const { groupId } = req.params;
-  console.log("📦 Getting balance for group:", groupId);
   try {
     const groupSnap = await db
       .ref(`group/${groupId}/groupMembers`)
@@ -39,7 +38,7 @@ export const getGroupBalance: RequestHandler = async (req, res) => {
           for (const uid in paidUsersId) {
             balances[uid][members[uid].name] += paidUsersId[uid];
           }
-        } else  if (typeof paidUsersId === "string") {
+        } else if (typeof paidUsersId === "string") {
           balances[paidUsersId][members[paidUsersId].name] += amount;
         }
       }
