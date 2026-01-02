@@ -11,7 +11,9 @@ lerna-debug.log*
 node_modules/
 
 # Build output
-
+# Firebase / Secrets
+firebase-admin.json
+server/dist/config/firebase-admin.json
 build/
 .temp/
 .temp/*
