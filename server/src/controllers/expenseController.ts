@@ -23,6 +23,8 @@ interface AddExpenseBody {
     | "percentage"
     | "itemized";
   date: string;
+  currencySymbol?: string;
+  currencyCode?: string;
   groupId: string;
   items?: Items[];
   gst?: number;
@@ -36,6 +38,8 @@ export const addExpenses: RequestHandler<AddExpenseBody> = async (req, res) => {
     paidUsersId,
     splitType,
     date,
+    currencySymbol,
+    currencyCode,
     groupId,
     splitDetails,
   } = req.body;
@@ -61,6 +65,23 @@ export const addExpenses: RequestHandler<AddExpenseBody> = async (req, res) => {
     if (!groupSnap.exists()) {
       return res.status(404).json({ message: "Group not found" });
     }
+
+    const existingExpensesSnap = await db.ref("expense")
+                                  .orderByChild("groupId")
+                                  .equalTo(groupId)
+                                  .once("value")
+    let existingCurrencyCodes = new Set<string>()
+    if(existingExpensesSnap.exists()){
+      const existingExpenses = existingExpensesSnap.val()
+      for(const exp of Object.values(existingExpenses)){
+        if((exp as any).currencyCode){
+          existingCurrencyCodes.add((exp as any).currencyCode)
+        }
+      }
+    }
+    existingCurrencyCodes.add(currencyCode)
+    const hasMultipleCurrencies = existingCurrencyCodes.size > 1
+
     const members = groupSnap.val() as Record<string, any>;
     const memberIds = Object.keys(members);
     const paidUsers =
@@ -236,15 +257,24 @@ export const addExpenses: RequestHandler<AddExpenseBody> = async (req, res) => {
       paidUsersId,
       splitType,
       date,
+      currencySymbol: currencySymbol || "₹",
+      currencyCode,
       groupId,
       splits,
       createdAt: Date.now(),
     };
     await newExpenseRef.set(expenseData);
     await db.ref(`group/${groupId}/expense/${expenseId}`).set(true);
+
+    await db.ref(`group/${groupId}`).update({
+      hasMultipleCurrencies
+    })
     res.status(201).json({
-      message: "Expense created successfully",
-      expense: expenseData,
+  message: hasMultipleCurrencies
+    ? "Expense added successfully, but group now has multiple currencies"
+    : "Expense created successfully",
+  expense: expenseData,
+  hasMultipleCurrencies,
     });
   } catch (error) {
     res.status(500).json({ message: "Internal Server error", error });
@@ -283,6 +313,7 @@ export const getExpenseByGroupId: RequestHandler = async (req, res) => {
         description,
         amount,
         splits,
+        currencySymbol,
         paidUserId,
         paidUsersId,
       } = exp;
@@ -318,6 +349,7 @@ export const getExpenseByGroupId: RequestHandler = async (req, res) => {
         expenseId,
         description,
         paidUserName,
+        currencySymbol,
         paidAmount: totalPaid,
         shouldGetBack: totalOwedByOthers,
       };
@@ -344,3 +376,5 @@ export const deleteExpense: RequestHandler = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+//detect if a group has multiple currencies in expenses
+

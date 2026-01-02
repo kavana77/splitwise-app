@@ -40,8 +40,8 @@ const AddExpenseForm = ({ onClose }: AddExpenseFormProps) => {
   // UI state
   const [currencyDialog, setCurrencyDialog] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState({
-    code: "USD",
-    label: "$",
+    code: "INR",
+    label: "₹",
   });
   const [isMultiple, setIsMultiple] = useState(false);
   const [payersData, setPayersData] = useState<Record<string, number>>({});
@@ -226,7 +226,7 @@ const AddExpenseForm = ({ onClose }: AddExpenseFormProps) => {
     // attach groupId & date already set via defaultValues
     data.groupId = groupId!;
     data.date = data.date || new Date().toISOString().split("T")[0];
-
+    console.log("Submitting expense data:", data);
     mutation.mutate(data);
   };
 
@@ -263,7 +263,7 @@ const AddExpenseForm = ({ onClose }: AddExpenseFormProps) => {
       <input
         {...register("description", { required: true })}
         placeholder="Enter a description"
-        className="w-full border-b-2 border-gray-200 text-2xl focus:outline-none"
+        className="w-full border-b-2 border-gray-200 text-2xl focus:outline-none "
       />
 
       {/* Amount field */}
@@ -273,7 +273,7 @@ const AddExpenseForm = ({ onClose }: AddExpenseFormProps) => {
           className="absolute bottom-1 text-xl hover:bg-gray-200 rounded-full px-2"
           onClick={() => setCurrencyDialog(true)}
         >
-          {selectedCurrency.label}
+          {selectedCurrency.label}  
         </button>
         <input
           {...register("amount", {
@@ -286,8 +286,9 @@ const AddExpenseForm = ({ onClose }: AddExpenseFormProps) => {
               ? grandTotalItemized.toFixed(2)
               : watch("amount") || ""
           }
+          placeholder="0.00"
           onChange={(e) => setValue("amount", Number(e.target.value))}
-          className="pl-8 w-full border-b-2 border-gray-200 text-2xl focus:outline-none"
+          className="ml-16  w-50 border-b-2 border-gray-200 text-2xl focus:outline-none"
           disabled={splitType === "itemized"}
         />
       </div>
@@ -318,7 +319,11 @@ const AddExpenseForm = ({ onClose }: AddExpenseFormProps) => {
       <CurrencyDialog
         onOpenChange={setCurrencyDialog}
         isOpen={currencyDialog}
-        onSelect={setSelectedCurrency}
+        onSelect={(currency)=>{
+          setSelectedCurrency(currency)
+          setValue("currencySymbol", currency.label)
+          setValue("currencyCode", currency.code)
+        }}
       />
 
       {/* Paid by Dialog */}

@@ -7,15 +7,20 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon src/server.ts",
+    "dev": "nodemon src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "axios": "^1.13.1",
     "cors": "^2.8.5",
+    "currency-converter-lt": "^2.0.1",
     "dotenv": "^17.2.2",
     "envalid": "^8.1.0",
     "express": "^5.1.0",
     "firebase-admin": "^13.5.0",
+    "nodemailer": "^7.0.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   },
@@ -24,6 +29,7 @@
     "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.3",
     "@types/node": "^24.3.0",
+    "@types/nodemailer": "^7.0.2",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "nodemon": "^3.1.10"

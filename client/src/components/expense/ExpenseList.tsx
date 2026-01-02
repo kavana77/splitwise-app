@@ -7,6 +7,7 @@ type ExpenseListProp = {
   description: string;
   amountPaid: number;
   lentAmount: number;
+  currencySymbol?: string;
   paidUserName: string;
   onDelete: (expenseId: string) => void;
 };
@@ -17,6 +18,7 @@ const ExpenseList = ({
   lentAmount,
   paidUserName,
   expenseId,
+  currencySymbol,
   onDelete,
 }: ExpenseListProp) => {
   const roundTwo = (num: number) => Math.round(num * 100) / 100;
@@ -38,7 +40,7 @@ const ExpenseList = ({
             Paid
           </Text>
           <Text className="text-emerald-600 font-bold text-lg">
-            ₹{roundTwo(amountPaid).toFixed(2)}
+            {currencySymbol}{roundTwo(amountPaid).toFixed(2)}
           </Text>
         </div>
         <div className="text-center">
@@ -46,7 +48,7 @@ const ExpenseList = ({
             Lent
           </Text>
           <Text className="text-red-500 font-bold text-lg">
-            ₹{roundTwo(lentAmount).toFixed(2)}
+            {currencySymbol}{roundTwo(lentAmount).toFixed(2)}
           </Text>
         </div>
       </div>

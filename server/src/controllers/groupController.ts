@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import db from "../config/firebaseConfig";
+import { sendEmail } from "../utils/sendEmail";
 
 interface GroupMember {
   uid: string;
@@ -54,6 +55,17 @@ export const addGroup: RequestHandler<AddGroupBody> = async (req, res) => {
     };
 
     await newGroupRef.set(groupData);
+    // Send email invitations to group members
+    await Promise.all(
+      groupMembers.map((member) => {
+        if (member.email) {
+          const subject = `Invitation to join group: ${groupName}`;
+          const text = `Hi ${member.name},\n\nYou have been invited to join the group "${groupName}" on Splitwise.\n\nBest regards,\nSplitwise Team`;
+          return sendEmail(member.email, subject, text);
+        }
+        return Promise.resolve();
+      })
+    );
     res
       .status(200)
       .json({ message: "Group created successfully", group: groupData });

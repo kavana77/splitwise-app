@@ -17,6 +17,7 @@ export interface ExpenseLists {
   description: string;
   paidAmount: number;
   shouldGetBack: number;
+  currencySymbol?: string;
   paidUserName: string;
 }
 
@@ -64,6 +65,8 @@ export interface AddExpenseBody {
     | "percentage"
     | "itemized";
   date: string;
+  currencySymbol?: string;
+  currencyCode?: string;
   groupId: string;
   items?: Items[]; 
   gst?: number; 

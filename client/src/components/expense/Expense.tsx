@@ -92,6 +92,7 @@ const ExpenseSection = ({ groupId, groups, setUserBox }: Props) => {
                   amountPaid={exp.paidAmount}
                   lentAmount={exp.shouldGetBack}
                   paidUserName={exp.paidUserName}
+                  currencySymbol={exp.currencySymbol}
                   onDelete={(id) =>
                     deleteExpenseMutation.mutate({
                       groupId: groupId!,

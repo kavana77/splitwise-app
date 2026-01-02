@@ -1,8 +1,7 @@
 import { auth } from "@/firebaseConfig";
 import { getDatabase, ref, get, child } from "firebase/database";
 const url = "http://localhost:4000/api"
-import type {GroupMember, AddGroupBody, Group, AddSettlementBody, GroupBalanceResponse } from "@/types/type";
-import type { AddExpenseBody } from "@/lib/zodSchema";
+import type {GroupMember, AddGroupBody, Group, AddSettlementBody,AddExpenseBody , GroupBalanceResponse } from "@/types/type";
 
 export const createGroup = async(groupData: AddGroupBody)=>{
     const response = await fetch(`${url}/add/newGroup`,{
@@ -136,6 +135,32 @@ export const deleteExpense = async(groupId: string, expenseId: string)=>{
   })
       if(!response.ok){
     throw new Error("Failed to get the Group Balance")
+  }
+  return response.json()
+}
+
+export const checkMultipleCurrencies = async(groupId: string)=>{
+  const response = await fetch(`${url}/add/check-currency/${groupId}`,{
+    method: 'GET',
+    headers:{
+      "Content-Type": "application/json"
+    }
+  })
+      if(!response.ok){
+    throw new Error("Failed to get the Group Balance")
+  }
+  return response.json()
+}
+
+export const convertGroupExpenses = async(groupId: string)=>{
+  const response = await fetch(`${url}/check/group/${groupId}/convert`,{
+    method: 'POST',
+    headers:{
+      "Content-Type": "application/json"
+    }
+  })
+  if(!response.ok){
+    throw new Error("Failed pass the expense")
   }
   return response.json()
 }
