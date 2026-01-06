@@ -1,6 +1,6 @@
 import { auth } from "@/firebaseConfig";
 import { getDatabase, ref, get, child } from "firebase/database";
-const url = "http://localhost:4000/api"
+const url = "https://splitwise-app-1.onrender.com/api"
 import type {GroupMember, AddGroupBody, Group, AddSettlementBody,AddExpenseBody , GroupBalanceResponse } from "@/types/type";
 
 export const createGroup = async(groupData: AddGroupBody)=>{
