@@ -1,5 +1,22 @@
+# =========================
+# Dependencies (client + server)
+# =========================
+node_modules/
+**/node_modules/
+
+# =========================
+# Build outputs (client + server)
+# =========================
+dist/
+build/
+dist-ssr/
+**/dist/
+**/build/
+
+# =========================
 # Logs
-logs
+# =========================
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,31 +24,37 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Dependency directories
-node_modules/
-
-# Build output
-# Firebase / Secrets
-dist/
-build/
-.temp/
-.temp/*
-
-# Environment files (frontend & backend)
+# =========================
+# Environment & Secrets
+# =========================
 .env
-.env.*.local
+.env.*
 .env.local
-server/.env
-client/src/firebaseConfig.ts   # ignore only if you don't want to push API key
-server/src/config/firebase-admin.json
-server/src/config/.env.local
+.env.*.local
 
-# System files
+# Firebase / GCP secrets
+firebase-admin.json
+**/firebase-admin.json
+
+# =========================
+# Cache / Tooling
+# =========================
+.npm/
+.eslintcache
+coverage/
+nyc_output/
+*.tsbuildinfo
+
+# =========================
+# OS files
+# =========================
 .DS_Store
 Thumbs.db
 
-# Editor directories and files
-.vscode/
+# =========================
+# Editor files
+# =========================
+.vscode/*
 !.vscode/extensions.json
 .idea/
 *.suo
@@ -39,16 +62,3 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
-
-# TypeScript
-*.tsbuildinfo
-
-# Optional npm cache directory
-.npm/
-
-# Optional eslint cache
-.eslintcache
-
-# Coverage directory
-coverage/
-nyc_output/
