@@ -19,6 +19,7 @@ export const addGroup: RequestHandler<AddGroupBody> = async (req, res) => {
   const { groupName, groupMembers, groupType, createdBy } = req.body;
 
   try {
+    console.log("🔥 ADD GROUP API HIT - EMAIL DISABLED VERSION");
     if (
       !groupName ||
       !Array.isArray(groupMembers) ||
@@ -55,17 +56,18 @@ export const addGroup: RequestHandler<AddGroupBody> = async (req, res) => {
     };
 
     await newGroupRef.set(groupData);
+    console.log("✅ GROUP SAVED, RETURNING EARLY");
     // Send email invitations to group members
-    await Promise.all(
-      groupMembers.map((member) => {
-        if (member.email) {
-          const subject = `Invitation to join group: ${groupName}`;
-          const text = `Hi ${member.name},\n\nYou have been invited to join the group "${groupName}" on Splitwise.\n\nBest regards,\nSplitwise Team`;
-          return sendEmail(member.email, subject, text);
-        }
-        return Promise.resolve();
-      })
-    );
+    // await Promise.all(
+    //   groupMembers.map((member) => {
+    //     if (member.email) {
+    //       const subject = `Invitation to join group: ${groupName}`;
+    //       const text = `Hi ${member.name},\n\nYou have been invited to join the group "${groupName}" on Splitwise.\n\nBest regards,\nSplitwise Team`;
+    //       return sendEmail(member.email, subject, text);
+    //     }
+    //     return Promise.resolve();
+    //   })
+    // );
     res
       .status(200)
       .json({ message: "Group created successfully", group: groupData });

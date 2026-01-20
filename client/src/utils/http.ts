@@ -4,10 +4,12 @@ const url = "https://splitwise-app-1.onrender.com/api"
 import type {GroupMember, AddGroupBody, Group, AddSettlementBody,AddExpenseBody , GroupBalanceResponse } from "@/types/type";
 
 export const createGroup = async(groupData: AddGroupBody)=>{
+  const token = await auth.currentUser?.getIdToken();
     const response = await fetch(`${url}/add/newGroup`,{
         method: "POST",
         headers:{
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(groupData)
     })
